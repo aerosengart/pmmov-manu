@@ -1,0 +1,28 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+*.lock
+*.rds
+
+# Latex build files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
+*.out
+*.xdv
+
+# Latex template files
+*.dtx
+*.dvi
+*.glo
+*.hd
+*.idx
+*.ins
+*.tmp
+*.toc
