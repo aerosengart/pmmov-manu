@@ -17,7 +17,7 @@ library(zipcodeR)
 set.seed(767473278)
 library(pmmov)
 setwd('../')
- 
+
 ## clean data
 scan_fb <- PrepData(out_path     = 'data',
                     raw_path     = 'data/scan',
@@ -25,7 +25,7 @@ scan_fb <- PrepData(out_path     = 'data',
                     clean_ncdc   = FALSE)
 
 ## save site abbreviations
-abbrev <- SiteAbbrev(scan_fb, out_path = 'checkpoints/csv') 
+abbrev <- SiteAbbrev(scan_fb, out_path = 'checkpoints/csv')
 scan_fb <- dplyr::left_join(scan_fb, abbrev, by = c('site' = 'site name'))
 
 ################################################################################
@@ -59,10 +59,10 @@ RunPred(out_path     = 'checkpoints',
         scan_fb      = scan_fb)
 
 ## find peaks and troughs of yearly time components
-PeakTrough(scan_fb, 
+PeakTrough(scan_fb,
            lambda     = 365.25,
            model_path = 'stan/wu1000_sep_lap_noucd/site_fits')
-PeakTrough(scan_fb, 
+PeakTrough(scan_fb,
            lambda     = 7,
            model_path = 'stan/wu1000_sep_lap_noucd/site_fits')
 
@@ -89,8 +89,8 @@ qr_c_sum <- readRDS(file = file.path('checkpoints', 'quantreg_complex_sum.rds'))
 SaveCoefs(model = qr_c_sum, out_path = 'checkpoints', file_name = 'qr_complex')
 
 ## Bayesian median models
-SaveStanCoefs(scan_fb, 
-              model_path = 'stan/wu1000_sep_lap_noucd/site_fits', 
+SaveStanCoefs(scan_fb,
+              model_path = 'stan/wu1000_sep_lap_noucd/site_fits',
               out_path = 'checkpoints')
 
 ################################################################################
@@ -112,7 +112,7 @@ pred_inters <- readRDS(file.path('checkpoints', 'cross_us_prediction_intervals.r
 prcp_inters <- readRDS(file.path('checkpoints', 'cross_us_precipitation.rds'))
 FigureSiteComparison(scan_fb, pred_inters, prcp_inters, out_path = 'manu/figures')
 
-## Boxplots 
+## Boxplots
 FigureBoxplot(scan_fb, out_path = 'manu/figures')
 
 ## QQ Plots
@@ -136,8 +136,8 @@ FigureSitePred(scan_fb, pred_inters, prcp_inters, out_path = 'manu/figures/site_
 FigureSewerComparison(scan_fb, weather_path = 'data/NCDC', out_path = 'manu/figures')
 
 ## Site Component Effects
-FigureComponents(scan_fb, 
-                 site_name = 'Loxahatchee River Environmental Control District', 
+FigureComponents(scan_fb,
+                 site_name = 'Loxahatchee River Environmental Control District',
                  start = '2021-06-01', end = '2023-08-01',
                  limits = c(8.25, 8.5),
                  model_path = '~/projects/pmmov-manu/stan/wu1000_sep_lap_noucd/site_fits',

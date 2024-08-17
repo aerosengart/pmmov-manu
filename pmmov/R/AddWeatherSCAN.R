@@ -68,7 +68,7 @@ AddWeatherSCAN <- function(df, weather_path = 'data/NCDC') {
 
   ## seasons are by meteorological seasons
   label_season <- function(date) {
-    month <- month(date)
+    month <- lubridate::month(date)
     if (month %in% c(12, 1, 2)) {
       return ('winter')
     } else if (month %in% c(3, 4, 5)) {

@@ -48,7 +48,7 @@ FigureSiteComparison <- function(scan_fb, pred_inters, prcp_inters, out_path = '
                           date_breaks = '1 month') +
     ggplot2::theme_bw() +
     ggplot2::guides(alpha = "none", size = "none") +
-    ggplot2::theme(axis.text.x     = ggplot2::element_text(angle = 45, hjust = 1, size = 8),
+    ggplot2::theme(axis.text.x     = ggplot2::element_text(angle = 45, hjust = 0.85, size = 8),
                    strip.text      = ggplot2::element_text(size = 10),
                    legend.position = 'top',
                    plot.margin     = grid::unit(c(1, 1, 1, 3), "mm"))

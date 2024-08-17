@@ -22,9 +22,6 @@ FigureBoxplot <- function(scan_fb, out_path = 'manu/figures') {
   sample_df <- sample_df %>%
     dplyr::mutate(abbreviation = factor(abbreviation, levels = site_order))
 
-  sample_df <- sample_df[sample_df$log_pmmov > stats::quantile(sample_df$log_pmmov, 0.005) &
-                           sample_df$log_pmmov < stats::quantile(sample_df$log_pmmov, 0.995), ]
-
   annot_hi <- scan_fb %>%
     dplyr::group_by(abbreviation) %>%
     dplyr::summarise(median = stats::median(log_pmmov)) %>%
@@ -32,7 +29,7 @@ FigureBoxplot <- function(scan_fb, out_path = 'manu/figures') {
   annot_hi <- annot_hi[1:3, ]
   max <- sample_df %>%
     dplyr::group_by(abbreviation) %>%
-    dplyr::summarise(max = max(log_pmmov)) %>%
+    dplyr::summarise(max = quantile(log_pmmov, 0.75)) %>%
     dplyr::filter(abbreviation %in% annot_hi$abbreviation)
   annot_hi <- dplyr::left_join(annot_hi, max, by = 'abbreviation')
   annot_hi$label <- c('H', 'H', 'H')
@@ -44,7 +41,7 @@ FigureBoxplot <- function(scan_fb, out_path = 'manu/figures') {
   annot_lo <- annot_lo[1:3, ]
   min <- sample_df %>%
     dplyr::group_by(abbreviation) %>%
-    dplyr::summarise(min = min(log_pmmov)) %>%
+    dplyr::summarise(min = quantile(log_pmmov, 0.25)) %>%
     dplyr::filter(abbreviation %in% annot_lo$abbreviation)
   annot_lo <- dplyr::left_join(annot_lo, min, by = 'abbreviation')
   annot_lo$label <- c('L', 'L', 'L')
@@ -57,7 +54,7 @@ FigureBoxplot <- function(scan_fb, out_path = 'manu/figures') {
                               mapping = ggplot2::aes(y = max, label = label),
                               size = 2,
                               nudge_y = 0.1,
-                              nudge_x = c(0.3, 0.02, -0.02),
+                              nudge_x = c(0.3, 0.3, 0.3),
                               color = "darkred",
                               min.segment.length = 0.01,
                               label.padding = 0.1) +
@@ -73,6 +70,7 @@ FigureBoxplot <- function(scan_fb, out_path = 'manu/figures') {
     ggplot2::guides(color = 'none') +
     ggplot2::labs(y = "PMMoV (log10 gc/g dry wt)",
                   title = "PMMoV by Site and Longitude") +
+    ggplot2::ylim(7.5, 10) +
     ggplot2::theme_bw() +
     ggplot2::theme(panel.background = ggplot2::element_blank(),
                    axis.title.x     = ggplot2::element_blank(),

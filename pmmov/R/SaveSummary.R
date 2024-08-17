@@ -68,7 +68,7 @@ SaveSummary <- function(out_path, scan_fb) {
     dplyr::mutate(location = paste0(city, ', ', state_abbr)) %>%
     dplyr::select(abbreviation, state, city, location, population) %>%
     unique() %>%
-    dplyr::arrange(state, city) %>%
+    dplyr::arrange(abbreviation) %>%
     dplyr::select(-c(state, city))
 
   formatting <- function(x) {
