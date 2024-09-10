@@ -1,10 +1,10 @@
 #' FigureGradient - Create and save gradient map figure as PDF.
 #'
-#' Figure is a map of the contiguous USA with a color gradient made according
-#' to the predicted log PMMoV made with the simple quantile regression model (Model 1).
+#' Figure is a map of the contiguous USA with a color gradient made with
+#' cubic regression spline generalized additive model.
 #'
 #' @param scan_fb a data frame; cleaned SCAN data
-#' @param model an `rq` object; fitted simple quantile regression model (Model 1)
+#' @param power a positive scalar; power to use for IDW
 #' @param out_path a string; path to save figure
 #'
 #' @return None
@@ -13,7 +13,7 @@
 #'
 #' @export
 
-FigureGradient <- function(scan_fb, model, out_path = 'manu/figures') {
+FigureGradient <- function(scan_fb, power = NA, out_path = 'manu/figures') {
   ## create map of US --- state outline data
   state_outline_data <- ggplot2::map_data("state")
   lat_interval <- seq(min(state_outline_data$lat),
@@ -26,15 +26,11 @@ FigureGradient <- function(scan_fb, model, out_path = 'manu/figures') {
   us_outline_sf <- sf::st_as_sf(us_outline_data, coords = c("lat", "long"))
   ## in case points are out of order
   us_polygon <- concaveman::concaveman(us_outline_sf)
-  pred_grid <- expand.grid(lat_interval, long_interval) %>%
+  grid <- expand.grid(lat_interval, long_interval) %>%
     dplyr::rename(lat = Var1,
                   lng = Var2)
-
-  ## use quantile regression model with lat/lng to create gradient
-  pred_grid <- expand.grid(lat_interval, long_interval) %>%
-    dplyr::rename(lat = Var1, lng = Var2)
-  pred_grid <- cbind(pred_grid, predict(model, newdata = pred_grid)) %>%
-    magrittr::set_colnames(c('lat', 'lng', 'pred'))
+  ## do spatial interpolation
+  pred_grid <- RunIDW(out_path = 'checkpoints', scan_fb = scan_fb, pred_grid = grid, power = power)
   pred_grid_sf <- sf::st_as_sf(pred_grid, coords = c("lat", "lng"))
   pred_in_us <- sf::st_filter(pred_grid_sf, us_polygon) %>%
     dplyr::mutate(lat = sf::st_coordinates(.)[,1],
@@ -76,6 +72,10 @@ FigureGradient <- function(scan_fb, model, out_path = 'manu/figures') {
     dplyr::filter(state != 'Alaska')
 
   ## create ggplot object
+  break_seq <- c(min(pred_in_us$pred),
+                 min(pred_in_us$pred) + (max(pred_in_us$pred) - min(pred_in_us$pred)) / 2,
+                 max(pred_in_us$pred))
+  labels_seq <- round(break_seq, 2)
   site_map <- ggplot2::ggplot() +
     ggplot2::geom_point(data    = pred_in_us,
                         mapping = ggplot2::aes(x     = lng,
@@ -117,10 +117,10 @@ FigureGradient <- function(scan_fb, model, out_path = 'manu/figures') {
     ggplot2::scale_colour_gradient2(low = "#001DFF",
                                     mid = "#800F80",
                                     high = "#FF0000",
-                                    midpoint = 8.628,
-                                    limits = c(8.25, 9.006),
-                                    breaks = seq(8.25, 9.0, 0.25),
-                                    labels = seq(8.25, 9.0, 0.25)) +
+                                    midpoint = labels_seq[2],
+                                    breaks = labels_seq,
+                                    labels = labels_seq,
+                                    limits = c(min(pred_in_us$pred) - 0.01, max(pred_in_us$pred) + 0.01)) +
     ggplot2::theme_bw() +
     ggplot2::coord_sf(xlim        = c(-125, -67),
                       ylim        = c(24, 50),
@@ -188,5 +188,5 @@ FigureGradient <- function(scan_fb, model, out_path = 'manu/figures') {
   grid_ab <- cowplot::ggdraw() +
     cowplot::draw_plot(site_map) +
     cowplot::draw_plot(ca_site_map, x = -0.35, y = -0.27, scale = 0.25)
-  ggplot2::ggsave(grid_ab, filename = file.path(out_path, 'figure1.pdf'), height = 5, width = 10)
+  ggplot2::ggsave(grid_ab, filename = file.path(out_path, 'figure_gradient.pdf'), height = 5, width = 10)
 }

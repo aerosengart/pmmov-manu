@@ -4,12 +4,12 @@
 \alias{FigureGradient}
 \title{FigureGradient - Create and save gradient map figure as PDF.}
 \usage{
-FigureGradient(scan_fb, model, out_path = "manu/figures")
+FigureGradient(scan_fb, power = NA, out_path = "manu/figures")
 }
 \arguments{
 \item{scan_fb}{a data frame; cleaned SCAN data}
 
-\item{model}{an \code{rq} object; fitted simple quantile regression model (Model 1)}
+\item{power}{a positive scalar; power to use for IDW}
 
 \item{out_path}{a string; path to save figure}
 }
@@ -17,6 +17,6 @@ FigureGradient(scan_fb, model, out_path = "manu/figures")
 None
 }
 \description{
-Figure is a map of the contiguous USA with a color gradient made according
-to the predicted log PMMoV made with the simple quantile regression model (Model 1).
+Figure is a map of the contiguous USA with a color gradient made with
+cubic regression spline generalized additive model.
 }

@@ -16,7 +16,7 @@ library(zipcodeR)
 ## reprod?
 set.seed(767473278)
 library(pmmov)
-setwd('../')
+setwd('../../pmmov-manu-priv/')
 
 ## clean data
 scan_fb <- PrepData(out_path     = 'data',
@@ -31,6 +31,10 @@ scan_fb <- dplyr::left_join(scan_fb, abbrev, by = c('site' = 'site name'))
 ################################################################################
 ##  CALCULATIONS                                                              ##
 ################################################################################
+## fit distance quantile model
+RunDistMod(out_path = 'checkpoints',
+           scan_fb  = scan_fb)
+
 ## fit linear quantile models
 RunQuantReg(out_path = 'checkpoints',
             scan_fb  = scan_fb)
@@ -88,6 +92,11 @@ qr_c <- readRDS(file = file.path('checkpoints', 'quantreg_complex.rds'))
 qr_c_sum <- readRDS(file = file.path('checkpoints', 'quantreg_complex_sum.rds'))
 SaveCoefs(model = qr_c_sum, out_path = 'checkpoints', file_name = 'qr_complex')
 
+## distance model
+dist <- readRDS(file = file.path('checkpoints', 'distance_model.rds'))
+dist_sum <- readRDS(file = file.path('checkpoints', 'distance_model_sum.rds'))
+SaveCoefs(model = dist_sum, out_path = 'checkpoints', file_name = 'dist_mod')
+
 ## Bayesian median models
 SaveStanCoefs(scan_fb,
               model_path = 'stan/wu1000_sep_lap_noucd/site_fits',
@@ -97,7 +106,7 @@ SaveStanCoefs(scan_fb,
 ##  FIGURES                                                                   ##
 ################################################################################
 ## US Map with Gradient
-FigureGradient(scan_fb, qr_s, out_path = 'manu/figures')
+FigureGradient(scan_fb, power = NA, out_path = 'manu/figures')
 
 ## Variance Partition - no interactions
 var_part <- read.csv(file.path('checkpoints', 'csv', 'lm_var_part.csv'))

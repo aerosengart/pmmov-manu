@@ -63,6 +63,9 @@ SaveCoefs <- function(model, out_path, file_name,
                                         format = 'E', digits = 3)) %>%
       magrittr::set_rownames(rownames(gee_exch)) %>%
       magrittr::set_colnames(colnames(gee_exch))
+  } else if (mod_class == 'summary.lqm') { ## LQM
+    mod_coef_tab <- model$tTable[, c('Value', 'Std. Error', 'Pr(>|t|)')]%>%
+      formatC(format = 'E', digits = 3)
   } else {
     stop('Model class not supported.')
   }
@@ -85,9 +88,24 @@ SaveCoefs <- function(model, out_path, file_name,
     }
     return (new_strs)
   }
-  row_names <- rownames(mod_coef_tab)
+
+  row_names <- data.frame(rownames(mod_coef_tab)) %>%
+    magrittr::set_colnames('row_names') %>%
+    dplyr::mutate(new_name = dplyr::case_when(row_names == '(Intercept)' ~ 'Intercept',
+                                              row_names == 'vls_dist' ~ 'Dist. to Lab',
+                                              row_names == 'ep_dist' ~ 'Dist. to El Paso',
+                                              row_names == 'avg_prcp' ~ 'Avg. Prcp.',
+                                              row_names == 'sewer' ~ 'Sewer',
+                                              row_names == 'lat' ~ 'Lat.',
+                                              row_names == 'lng' ~ 'Lng.',
+                                              row_names == 'sin1_wk' ~ '$\\psi_{7}^{\\text{sin}}$',
+                                              row_names == 'cos1_wk' ~ '$\\psi_{7}^{\\text{cos}}$',
+                                              row_names == 'sin1_yr' ~ '$\\psi_{365.25}^{\\text{sin}}$',
+                                              row_names == 'cos1_yr' ~ '$\\psi_{365.25}^{\\text{cos}}$',
+                                              row_names == 'avg_prcp:sewer' ~ 'Avg. Prcp./Sewer',
+                                              TRUE ~ row_names))
   mod_coef_tab2 <- apply(mod_coef_tab, 2, Formatting)
-  rownames(mod_coef_tab2) <- row_names
+  rownames(mod_coef_tab2) <- row_names$new_name
 
   if (mod_class == 'stanfit') {
     mod_coef_tab3 <- as.data.frame(mod_coef_tab2) %>%
@@ -100,7 +118,6 @@ SaveCoefs <- function(model, out_path, file_name,
   } else {
     mod_coef_tab <- rbind(mod_coef_tab2, mod_coef_tab)
   }
-
 
 
   ## save as .csv

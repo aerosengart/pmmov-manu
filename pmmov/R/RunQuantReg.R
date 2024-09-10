@@ -19,7 +19,7 @@ RunQuantReg <- function(out_path, scan_fb) {
   saveRDS(qr_s, file = file.path(out_path, 'quantreg_simple.rds'))
   saveRDS(qr_s_sum, file = file.path(out_path, 'quantreg_simple_sum.rds'))
 
-  ## complex linear model --- use other covariates
+  ## complex model --- use other covariates
   qr_c <- quantreg::rq(formula = log_pmmov ~ lat + lng + avg_prcp + sewer +
                                    avg_prcp:sewer + sin1_yr + cos1_yr +
                                    sin1_wk + cos1_wk,
