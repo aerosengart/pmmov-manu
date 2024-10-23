@@ -5,6 +5,7 @@
 #'
 #' @param scan_fb a data frame; cleaned SCAN data
 #' @param power a positive scalar; power to use for IDW
+#' @param use_last a boolean flag; if TRUE, use the last saved interpolation
 #' @param out_path a string; path to save figure
 #'
 #' @return None
@@ -13,7 +14,7 @@
 #'
 #' @export
 
-FigureGradient <- function(scan_fb, power = NA, out_path = 'manu/figures') {
+FigureGradient <- function(scan_fb, power = NA, use_last = TRUE, out_path = 'manu/figures') {
   ## create map of US --- state outline data
   state_outline_data <- ggplot2::map_data("state")
   lat_interval <- seq(min(state_outline_data$lat),
@@ -30,7 +31,7 @@ FigureGradient <- function(scan_fb, power = NA, out_path = 'manu/figures') {
     dplyr::rename(lat = Var1,
                   lng = Var2)
   ## do spatial interpolation
-  pred_grid <- RunIDW(out_path = 'checkpoints', scan_fb = scan_fb, pred_grid = grid, power = power)
+  pred_grid <- RunIDW(out_path = 'checkpoints', scan_fb = scan_fb, pred_grid = grid, power = power, use_last = use_last)
   pred_grid_sf <- sf::st_as_sf(pred_grid, coords = c("lat", "lng"))
   pred_in_us <- sf::st_filter(pred_grid_sf, us_polygon) %>%
     dplyr::mutate(lat = sf::st_coordinates(.)[,1],
@@ -114,13 +115,7 @@ FigureGradient <- function(scan_fb, power = NA, out_path = 'manu/figures') {
     ggplot2::scale_shape_manual(values = c(24, 21)) +
     ggplot2::scale_size_manual(values = c(3.5, 2), guide = 'none') +
     ggplot2::scale_alpha(guide = 'none') +
-    ggplot2::scale_colour_gradient2(low = "#001DFF",
-                                    mid = "#800F80",
-                                    high = "#FF0000",
-                                    midpoint = labels_seq[2],
-                                    breaks = labels_seq,
-                                    labels = labels_seq,
-                                    limits = c(min(pred_in_us$pred) - 0.01, max(pred_in_us$pred) + 0.01)) +
+    viridis::scale_color_viridis(option = 'rocket') +
     ggplot2::theme_bw() +
     ggplot2::coord_sf(xlim        = c(-125, -67),
                       ylim        = c(24, 50),

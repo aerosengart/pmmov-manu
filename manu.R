@@ -13,7 +13,7 @@ library(stringr)
 library(xlsx)
 library(zipcodeR)
 
-## reprod?
+## reprod
 set.seed(767473278)
 library(pmmov)
 setwd('../../pmmov-manu-priv/')
@@ -75,7 +75,6 @@ SiteResid(scan_fb,
           model_path   = 'stan/wu1000_sep_lap_noucd/site_fits',
           out_path     = 'checkpoints')
 
-
 ################################################################################
 ##  TABLES                                                                    ##
 ################################################################################
@@ -106,11 +105,7 @@ SaveStanCoefs(scan_fb,
 ##  FIGURES                                                                   ##
 ################################################################################
 ## US Map with Gradient
-FigureGradient(scan_fb, power = NA, out_path = 'manu/figures')
-
-## Variance Partition - no interactions
-var_part <- read.csv(file.path('checkpoints', 'csv', 'lm_var_part.csv'))
-FigureVariance(scan_fb, var_part, out_path = 'manu/figures')
+FigureGradient(scan_fb, power = NA, use_last = TRUE, out_path = 'manu/figures')
 
 ## Variance Partition - with interactions
 var_part <- read.csv(file.path('checkpoints', 'csv', 'lm_var_part_interactions.csv'))
@@ -125,10 +120,17 @@ FigureSiteComparison(scan_fb, pred_inters, prcp_inters, out_path = 'manu/figures
 FigureBoxplot(scan_fb, out_path = 'manu/figures')
 
 ## QQ Plots
-FigureQQPlot(scan_fb, qr_c, out_path = 'manu/figures')
+var_part_mod <- lm(log_pmmov ~ lat + lng + sewer + avg_prcp + sewer:avg_prcp + site
+                   + sin1_wk + cos1_wk + sin1_yr + cos1_yr
+                   + lat:sin1_wk + lat:cos1_wk + lat:sin1_yr + lat:cos1_yr
+                   + lng:sin1_wk + lng:cos1_wk + lng:sin1_yr + lng:cos1_yr
+                   + site:sin1_wk + site:cos1_wk + site:sin1_yr + site:cos1_yr,
+                   data = scan_fb)
+FigureQQPlot(scan_fb, var_part_mod, out_path = 'manu/figures')
 
 ## Residual ACF Figure
 resid_df <- readRDS(file.path('checkpoints', 'site_resids.rds'))
+resid_df <- dplyr::left_join(resid_df, abbrev, by = c('site' = 'site name'))
 FigureACF(resid_df, all_sites = FALSE, data = FALSE, out_path = 'manu/figures')
 
 ## Data ACF Figure
@@ -158,3 +160,4 @@ FigurePeaks(scan_fb, peak_trough, lambda = 365.25, out_path = 'manu/figures')
 
 peak_trough <- readRDS('checkpoints/peak_trough_7.rds')
 FigurePeaks(scan_fb, peak_trough, lambda = 7, out_path = 'manu/figures')
+

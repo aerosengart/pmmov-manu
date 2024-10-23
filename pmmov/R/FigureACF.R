@@ -1,6 +1,7 @@
 #' FigureACF - Create and save ACF plot as PDF.
 #'
 #' Figure is a plot of the weighted average autocorrelations across all sites.
+#' Function will also save a .csv file with the number of observations used to calculate the ACF at each lag.
 #'
 #' @param scan_fb a data frame; cleaned SCAN data
 #' @param all_sites a boolean flag; create and save ACF plots for individual sites
@@ -50,16 +51,22 @@ FigureACF <- function(scan_fb, all_sites, data, out_path) {
   }
 
   unique_sites <- unique(scan_daily$site)
+  abbrevs <- scan_daily[, c('site', 'abbreviation')] %>%
+    unique() %>%
+    na.omit()
+  
   acfs_used <- data.frame(matrix(0, nrow = 31, ncol = length(unique_sites)))
   sizes_used <- data.frame(matrix(0, nrow = 31, ncol = length(unique_sites)))
   pairs_used <- data.frame(matrix(0, nrow = 31, ncol = length(unique_sites)))
-  colnames(acfs_used) <- colnames(sizes_used) <- colnames(pairs_used) <- unique_sites
+  colnames(acfs_used) <- colnames(sizes_used) <- colnames(pairs_used) <- abbrevs$abbreviation
   rownames(acfs_used) <- rownames(sizes_used) <- rownames(pairs_used) <- paste0('lag=', 0:30)
 
-  for (s in 1:length(unique_sites)) {
+  for (s in 1:length(abbrevs$abbreviation)) {
+    abbreviation <- abbrevs$abbreviation[s]
+    site_name <- abbrevs$site[s]
     ## filter to single site
     df <- scan_daily %>%
-      dplyr::filter(site == !!unique_sites[s])
+      dplyr::filter(site == site_name)
     ## extract data
     resid <- df$resid
     site_acf <- c()
@@ -114,6 +121,18 @@ FigureACF <- function(scan_fb, all_sites, data, out_path) {
     acfs_used[, s] <- site_acf[, 2]
     sizes_used[, s] <- site_acf[, 1]
   }
+  if (data) {
+    sizes_file <- file.path(out_path, 'site_acf', 'data_ACF_lags_obs')
+  } else {
+    sizes_file <- file.path(out_path, 'site_acf', 'resid_ACF_lags_obs')
+  }
+  sizes_used <- sizes_used %>%
+    dplyr::select(sort(abbrevs$abbreviation)) %>%
+    t()
+  sizes_used_0_14 <- sizes_used[, 1:15]
+  sizes_used_15_30 <- sizes_used[, 16:31]
+  write.csv(sizes_used_0_14, paste0(sizes_file, '_0_14.csv'))
+  write.csv(sizes_used_15_30, paste0(sizes_file, '_15_30.csv'))
 
   ## save autocorrelation plots for each individual site
   if (all_sites) {

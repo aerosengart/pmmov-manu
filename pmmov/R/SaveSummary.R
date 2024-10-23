@@ -64,9 +64,9 @@ SaveSummary <- function(out_path, scan_fb) {
     dplyr::reframe(count = n())
 
   pop <- scan_fb %>%
-    dplyr::select(abbreviation, state, city, state_abbr, population) %>%
+    dplyr::select(abbreviation, state, city, sewer, state_abbr, population) %>%
     dplyr::mutate(location = paste0(city, ', ', state_abbr)) %>%
-    dplyr::select(abbreviation, state, city, location, population) %>%
+    dplyr::select(abbreviation, state, city, location, sewer, population) %>%
     unique() %>%
     dplyr::arrange(abbreviation) %>%
     dplyr::select(-c(state, city))
@@ -78,7 +78,8 @@ SaveSummary <- function(out_path, scan_fb) {
   pmmov_summary <- dplyr::left_join(pop, obs, by = 'abbreviation') %>%
     dplyr::left_join(log_pmmov, by = 'abbreviation') %>%
     dplyr::left_join(prcp, by = 'abbreviation') %>%
-    magrittr::set_colnames(c('Site', 'Location', 'Pop. Served', 'Num. of Obs.',
+    dplyr::mutate(sewer = ifelse(sewer == 1, 'Combined', 'Separated')) %>%
+    magrittr::set_colnames(c('Site', 'Location', 'Sewer Type', 'Pop. Served', 'Num. of Obs.',
                              'Min. PMMoV', 'Max. PMMoV', 'Med. PMMoV', 'Mean PMMoV',
                              'Min. Prcp.', 'Max. Prcp.', 'Med. Prcp.', 'Mean Prcp.'))
   pmmov_summary[, 5:ncol(pmmov_summary)] <- apply(pmmov_summary[, 5:ncol(pmmov_summary)], 2, formatting)

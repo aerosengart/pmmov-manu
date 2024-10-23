@@ -18,13 +18,14 @@
 #' @param scan_fb a data frame; cleaned WWTP data frame
 #' @param pred_grid a data frame; coordinates at which to interpolate (should contain columns for latitude and longitude)
 #' @param power a positive scalar; power to use for IDW
+#' @param use_last a boolean flag; if TRUE, use the last saved interpolation
 #' @return a data frame of interpolated values at the locations specified by `pred_grid`
 #'
 #' @importFrom magrittr %>%
 #'
 #' @export
 
-RunIDW <- function(out_path, scan_fb, pred_grid, power = NA) {
+RunIDW <- function(out_path, scan_fb, pred_grid, power = NA, use_last = TRUE) {
   ## collapse down to just medians
   scan_fb_med <- scan_fb %>%
     dplyr::group_by(site) %>%
@@ -117,14 +118,18 @@ RunIDW <- function(out_path, scan_fb, pred_grid, power = NA) {
     data.frame(pred = ux)
   }
 
-  scan_intpol <- idw(values = scan_vals,
-                     coords = scan_coords,
-                     grid = pred_grid,
-                     pow = power)
-  scan_intpol$lat <- pred_grid$lat
-  scan_intpol$lng <- pred_grid$lng
+  if (use_last & file.exists(file.path(out_path, 'idw_intpol.rds'))) {
+    scan_intpol <- readRDS(file.path(out_path, 'idw_intpol.rds'))
+  } else {
+    scan_intpol <- idw(values = scan_vals,
+                       coords = scan_coords,
+                       grid = pred_grid,
+                       pow = power)
+    scan_intpol$lat <- pred_grid$lat
+    scan_intpol$lng <- pred_grid$lng
 
-  saveRDS(scan_intpol, file = file.path(out_path, 'idw_intpol.rds'))
+    saveRDS(scan_intpol, file = file.path(out_path, 'idw_intpol.rds'))
+  }
   return(scan_intpol)
 }
 
