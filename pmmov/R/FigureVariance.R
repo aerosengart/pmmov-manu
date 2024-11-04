@@ -21,7 +21,8 @@ FigureVariance <- function(scan_fb, var_part, out_path = 'manu/figures') {
                                                          y    = model,
                                                          fill = name)) +
       ggplot2::geom_bar(stat = "identity", position = 'fill', width = 0.2) +
-      viridis::scale_fill_viridis(option = 'turbo', discrete = TRUE) +
+      ggplot2::scale_fill_manual(values = c("#c5c8d6", "#3E9BFEFF", "#FABA39FF",
+                                            "#46F884FF", "#7A0403FF")) +
       ggrepel::geom_label_repel(var_part,
                                 nudge_y            = c(-0.3, 0.3, -0.3, 0.3, -0.3),
                                 min.segment.length = 0.1,
@@ -45,7 +46,9 @@ FigureVariance <- function(scan_fb, var_part, out_path = 'manu/figures') {
                                                          y    = model,
                                                          fill = name)) +
       ggplot2::geom_bar(stat = "identity", position = 'fill', width = 0.2) +
-      viridis::scale_fill_viridis(option = 'turbo', discrete = TRUE) +
+      ggplot2::scale_fill_manual(values = c("#c5c8d6", "#3E9BFEFF","#1AE4B6FF",
+                                            "#30123BFF", "#E4460AFF","#46F884FF",
+                                            "#FABA39FF", "#7A0403FF")) +
       ggrepel::geom_label_repel(var_part,
                                 nudge_y            = c(-0.3, 0.3, -0.3, 0.3, -0.3 , 0.3, -0.3),
                                 nudge_x            = c(0.0, 0.0, 0.0, -0.05, 0.0, 0.05),
