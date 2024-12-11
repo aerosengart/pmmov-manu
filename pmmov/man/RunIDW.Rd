@@ -4,7 +4,7 @@
 \alias{RunIDW}
 \title{RunIDW - Do IDW spatial interpolation.}
 \usage{
-RunIDW(out_path, scan_fb, pred_grid, power = NA)
+RunIDW(out_path, scan_fb, pred_grid, power = NA, use_last = TRUE)
 }
 \arguments{
 \item{out_path}{a string; path to save fitted models}
@@ -14,6 +14,8 @@ RunIDW(out_path, scan_fb, pred_grid, power = NA)
 \item{pred_grid}{a data frame; coordinates at which to interpolate (should contain columns for latitude and longitude)}
 
 \item{power}{a positive scalar; power to use for IDW}
+
+\item{use_last}{a boolean flag; if TRUE, use the last saved interpolation}
 }
 \value{
 a data frame of interpolated values at the locations specified by \code{pred_grid}

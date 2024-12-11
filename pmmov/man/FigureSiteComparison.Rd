@@ -14,7 +14,7 @@ FigureSiteComparison(
 \arguments{
 \item{scan_fb}{a data frame; cleaned SCAN data}
 
-\item{pred_inters}{a data frame; predictions from generalized Gaussian model (Model 4) for site(s)}
+\item{pred_inters}{a data frame; predictions from generalized Gaussian model for site(s)}
 
 \item{prcp_inters}{a data frame; precipitation data for site(s)}
 
@@ -24,7 +24,7 @@ FigureSiteComparison(
 None
 }
 \description{
-Figure is a grid of the predicted time series made with Model 4. Line is the median, bands are the 95\%
-prediction interval, and points are the observed values. Rug is colored by average daily precipitation for
-the area.
+Figure is a grid of the predicted time series made with the individual site Bayesian models.
+Line is the median, bands are the 95\% prediction interval, and points are the observed values.
+Rug is colored by average daily precipitation for the area.
 }

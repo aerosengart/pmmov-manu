@@ -20,4 +20,5 @@ None
 }
 \description{
 Figure is a plot of the weighted average autocorrelations across all sites.
+Function will also save a .csv file with the number of observations used to calculate the ACF at each lag.
 }

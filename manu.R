@@ -16,7 +16,6 @@ library(zipcodeR)
 ## reprod
 set.seed(767473278)
 library(pmmov)
-setwd('../../pmmov-manu-priv/')
 
 ## clean data
 scan_fb <- PrepData(out_path     = 'data',
@@ -153,11 +152,4 @@ FigureComponents(scan_fb,
                  limits = c(8.25, 8.5),
                  model_path = '~/projects/pmmov-manu/stan/wu1000_sep_lap_noucd/site_fits',
                  weather_path = '~/projects/pmmov-manu/data/NCDC')
-
-## Site Peaks
-peak_trough <- readRDS('checkpoints/peak_trough_365.25.rds')
-FigurePeaks(scan_fb, peak_trough, lambda = 365.25, out_path = 'manu/figures')
-
-peak_trough <- readRDS('checkpoints/peak_trough_7.rds')
-FigurePeaks(scan_fb, peak_trough, lambda = 7, out_path = 'manu/figures')
 
