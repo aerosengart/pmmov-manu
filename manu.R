@@ -119,13 +119,7 @@ FigureSiteComparison(scan_fb, pred_inters, prcp_inters, out_path = 'manu/figures
 FigureBoxplot(scan_fb, out_path = 'manu/figures')
 
 ## QQ Plots
-var_part_mod <- lm(log_pmmov ~ lat + lng + sewer + avg_prcp + sewer:avg_prcp + site
-                   + sin1_wk + cos1_wk + sin1_yr + cos1_yr
-                   + lat:sin1_wk + lat:cos1_wk + lat:sin1_yr + lat:cos1_yr
-                   + lng:sin1_wk + lng:cos1_wk + lng:sin1_yr + lng:cos1_yr
-                   + site:sin1_wk + site:cos1_wk + site:sin1_yr + site:cos1_yr,
-                   data = scan_fb)
-FigureQQPlot(scan_fb, var_part_mod, out_path = 'manu/figures')
+FigureQQPlot(scan_fb, out_path = 'manu/figures')
 
 ## Residual ACF Figure
 resid_df <- readRDS(file.path('checkpoints', 'site_resids.rds'))
