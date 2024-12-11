@@ -5,7 +5,6 @@
 #' standard Gaussian and standard Laplace.
 #'
 #' @param scan_fb a data frame; cleaned SCAN data
-#' @param model an `lm` object; fitted variance decomposition model
 #' @param out_path a string; path to save figure
 #'
 #' @return None
@@ -14,14 +13,21 @@
 #'
 #' @export
 
-FigureQQPlot <- function(scan_fb, model, out_path = 'manu/figures') {
+FigureQQPlot <- function(scan_fb, out_path = 'manu/figures') {
+  model <- lm(log_pmmov ~ lat + lng + sewer + avg_prcp + sewer:avg_prcp + site
+            + sin1_wk + cos1_wk + sin1_yr + cos1_yr
+            + lat:sin1_wk + lat:cos1_wk + lat:sin1_yr + lat:cos1_yr
+            + lng:sin1_wk + lng:cos1_wk + lng:sin1_yr + lng:cos1_yr
+            + site:sin1_wk + site:cos1_wk + site:sin1_yr + site:cos1_yr,
+            data = scan_fb)
+
   resid_df <- cbind(model$model$log_pmmov, model$residuals) %>%
     data.frame() %>%
     magrittr::set_colnames(c('val', 'resid')) %>%
     dplyr::mutate('std_resid' = scale(resid),
                   'std_vals'  = scale(val))
 
-  norm_qq <- ggplot(data = resid_df, ggplot2::aes(sample = std_vals)) +
+  norm_qq <- ggplot(data = resid_df, ggplot2::aes(sample = std_resid)) +
     ggplot2::geom_qq(alpha = 0.5, color = 'darkred', distribution = stats::qnorm) +
     ggplot2::geom_abline(slope = 1, intercept = 0) +
     ggplot2::labs(x = 'Theoretical Quantiles',
@@ -30,7 +36,7 @@ FigureQQPlot <- function(scan_fb, model, out_path = 'manu/figures') {
     ggplot2:: theme_bw() +
     ggplot2:: theme(aspect.ratio = 1)
 
-  lap_qq <- ggplot2::ggplot(data = resid_df, ggplot2::aes(sample = std_vals)) +
+  lap_qq <- ggplot2::ggplot(data = resid_df, ggplot2::aes(sample = std_resid)) +
     ggplot2::geom_abline(slope = 1, intercept = 0) +
     ggplot2::geom_qq(alpha = 0.5, color = 'darkblue', distribution = jmuOutlier::qlaplace) +
     ggplot2::labs(x = 'Theoretical Quantiles',

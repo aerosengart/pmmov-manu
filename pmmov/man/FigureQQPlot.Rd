@@ -4,12 +4,10 @@
 \alias{FigureQQPlot}
 \title{FigureQQPlot - Create and save QQ plots as PDF.}
 \usage{
-FigureQQPlot(scan_fb, model, out_path = "manu/figures")
+FigureQQPlot(scan_fb, out_path = "manu/figures")
 }
 \arguments{
 \item{scan_fb}{a data frame; cleaned SCAN data}
-
-\item{model}{an \code{lm} object; fitted variance decomposition model}
 
 \item{out_path}{a string; path to save figure}
 }
